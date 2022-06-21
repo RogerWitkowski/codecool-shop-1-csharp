@@ -4,29 +4,51 @@
 
 @model List<Codecool.CodecoolShop.Models.Product>
 
-<div class="container">
-    @foreach (var element in Model)
-    {
-        <div class="col-lg-3 col-lg-3" style="display: inline-block; max-width: 350px; height: 350px">
-            <div class="card">
-                <img src="img/@(element.Name).jpg" style="height: 50%; width: 50%; align-self: center; padding-top: 10px">
 
-                <div class="card-body">
-                    <h5 class="card-title text-center">
-                        Product
-                        @{ var num = Model.IndexOf(element) + 1;}
-                        @num
-                    </h5>
-                    <h5 class="card-title">@element.Name</h5>
-                    <p class="card-text">@element.Description.</p>
-                    <p class="card-text">Category: @element.ProductCategory.Department</p>
-                    <p class="card-text">Supplier: @element.Supplier.Name</p>
-                    <p class="card-text text-center"><strong>Price: @element.DefaultPrice.ToString("C2")</strong></p>
-                    <a href="" type="button" class="btn btn-primary" style="float: bottom">Add To Cart</a>
+<main role="main" class="pb-3">
+<div class="container">
+  <div class="row">
+    <div class="col-2">
+      <nav class="navbar navbar-expand-sm flex-sm-column navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container">
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    <ul class="navbar-nav flex-sm-column flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Privacy">Privacy</a>
+                        </li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    }
-
-
-</div>
+        </nav>
+    </div>
+    <div class="col">
+       <div class="container">
+        @foreach (var element in Model)
+        {
+            <div class="col-lg-3 col-lg-3" style="display: inline-block; max-width: 350px; height: 350px">
+                <div class="card">
+                    <img src="img/@(element.Name).jpg" style="height: 50%; width: 50%; align-self: center; padding-top: 10px">
+                    <div class="card-body">
+                        <h5 class="card-title text-center">
+                            Product
+                            @{ var num = Model.IndexOf(element) + 1;}
+                            @num
+                        </h5>
+                        <h5 class="card-title">@element.Name</h5>
+                        <p class="card-text">@element.Description.</p>
+                        <p class="card-text">Category: @element.ProductCategory.Department</p>
+                        <p class="card-text">Supplier: @element.Supplier.Name</p>
+                        <p class="card-text text-center"><strong>Price: @element.DefaultPrice.ToString("C2")</strong></p>
+                        <a href="" type="button" class="btn btn-primary" style="float: left">Add To Cart</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+    </div>
+  </div>
+ </div>>
+</main>
