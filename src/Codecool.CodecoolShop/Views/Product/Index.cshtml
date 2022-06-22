@@ -1,63 +1,49 @@
 @{
-    ViewData["Title"] = "Home Page";
-    var productCategory = new List<string>();
-    var supplier = new List<string>();
-    foreach (var element in Model)
-    {
-        if (!productCategory.Contains(element.ProductCategory.Department))
-        {
-            productCategory.Add(element.ProductCategory.Department);
-        }
-        if (!supplier.Contains(element.Supplier.Name))
-        {
-            supplier.Add(element.Supplier.Name);
-        }
-    }
 
-   
+    ViewData["Title"] = "Home Page";
 
 }
 
-@model List<Codecool.CodecoolShop.Models.Product>
-
+@model (List<Codecool.CodecoolShop.Models.Product>, List<Codecool.CodecoolShop.Models.ProductCategory>, List<Codecool.CodecoolShop.Models.Supplier>)
 
 <main role="main" class="pb-3">
 <div class="container">
   <div class="row">
-    <div class="col-3">
+    <div class="col-2">
       <nav class="navbar navbar-expand-sm flex-sm-column navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
              <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">Product Categories</button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                        @foreach (var element in productCategory)
-                        {
-                            <li>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Product" asp-action="Index">@element</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+                <form>
+                    <label for="categories">Choose a category:</label>
+                        <select id="categories">
+                            <option value="0">All</option>;
+                            @foreach (var item in Model.Item2)
+                            {
+                                <option value="@item.Id">@item.Name</option>;
+                            }
+                        </select>
+                    <button type="button" onclick="RefreshProducts('category')">Refresh</button>
+                </form>
+                <form>
+                    <label for="supliers">Choose a supplier:</label>
+                        <select id="supliers">
+                            <option value="0">All</option>;
+                            @foreach (var item in Model.Item3)
+                            {
+                                <option value="@item.Id">@item.Name</option>;
+                            }
+                        </select>
+                    <button type="button" onclick="RefreshProducts('supplier')">Refresh</button>
+                </form>
             </div>
                 <br>
             <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                 <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">Supplier</button>
-                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                        @foreach (var element in supplier)
-                        {
-                            <li>
-                                <a class="nav-link text-dark dropdown-item" asp-area="" asp-controller="Product" asp-action="Index">@element</a>
-                            </li>
-                        }
-                    </ul>
-                </div>
+                
             </div>
        </nav>
     </div>
     <div class="col">
-       <div class="container">
-        @foreach (var element in Model)
+       <div class="container" id="productContainer">
+        @foreach (var element in Model.Item1)
         {
             <div class="col-lg-3 col-lg-3" style="display: inline-block; max-width: 350px; height: 350px">
                 <div class="card">
@@ -65,7 +51,7 @@
                     <div class="card-body">
                         <h5 class="card-title text-center">
                             Product
-                            @{ var num = Model.IndexOf(element) + 1;}
+                            @{ var num = Model.Item1.IndexOf(element) + 1;}
                             @num
                         </h5>
                         <h5 class="card-title">@element.Name</h5>
@@ -81,5 +67,5 @@
     </div>
     </div>
   </div>
- </div>>
+ </div>
 </main>
