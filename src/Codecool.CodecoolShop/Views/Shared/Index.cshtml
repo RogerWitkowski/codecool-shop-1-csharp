@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model List<Codecool.CodecoolShop.Models.Product>
+
+
+
+<li class="nav-item">
+    <div class="dropdown-menu-right">Order By</div>
+    @{List<string> Check = new List<string>();}
+        @foreach (Product product in Model)
+        {
+            if (!Check.Contains(product.ProductCategory.ToString()))
+            {
+                Check.Add(product.ProductCategory.ToString());
+                <a class="dropdown-item" asp-area="" asp-controller="Product" asp-action="Index" asp-route-Category="@product.ProductCategory.Id">@product.ProductCategory.Name</a>
+            }
+        }
+
+</li>
+
+
+<div class="container">
+    @foreach (var element in Model)
+    {
+        <div class="col-lg-3 col-lg-3" style="display: inline-block; max-width: 350px; height: 350px">
+            <div class="card">
+                <img src="img/@(element.Name).jpg" style="height: 50%; width: 50%; align-self: center; padding-top: 10px">
+
+                <div class="card-body">
+                    <h5 class="card-title text-center">
+                        Product
+                        @{ var num = Model.IndexOf(element) + 1;}
+                        @num
+                    </h5>
+                    <h5 class="card-title">@element.Name</h5>
+                    <p class="card-text">@element.Description.</p>
+                    <p class="card-text">Category: @element.ProductCategory.Department</p>
+                    <p class="card-text">Supplier: @element.Supplier.Name</p>
+                    <p class="card-text text-center"><strong>Price: @element.DefaultPrice.ToString("C2")</strong></p>
+                    <a type="button" class="btn btn-primary" asp-controller="Cart" asp-action="Add" asp-route-Command="@element.Id,@element.ProductCategory.Id">Add To Cart</a>
+                    @if (element.Quantity > 0)
+                    {
+                        <a type="button" class="btn btn-primary" asp-controller="Cart" asp-action="Remove" asp-route-Id="@element.Id">Remove from Cart</a>
+                    }
+                    <a type="button" class="btn btn-primary" asp-controller="Cart" asp-action="ViewCart">View Cart</a>
+                </div>
+            </div>
+        </div>
+    }
+
+
+</div>

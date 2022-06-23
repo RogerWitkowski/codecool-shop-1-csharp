@@ -1,0 +1,34 @@
+﻿@model List<Codecool.CodecoolShop.Models.Product>
+
+ 
+@{
+    decimal totalPrice = 0;
+
+    <table class="table">
+        <tr class="col">
+            <th class="col-1">ITEM</th>
+            <th class="col-2">QUANTITY</th>
+            <th class="col-3">PRICE</th>
+        </tr>
+        @foreach (Product product in Model)
+        {
+            @if (product.Quantity > 0)
+            {
+
+                totalPrice += product.Quantity * product.DefaultPrice;
+    <tr class="col">
+        <th class="col-1"> @product.Name </th>
+        <th class="col-2"> @product.Quantity</th>
+        <th class="col-3"> @product.Quantity*@product.DefaultPrice </th>
+    </tr>
+            }
+
+        }
+    </table>
+
+}
+
+
+<div class="d-table-cell">
+    <b>Total Cart Price: @totalPrice</b>
+</div>

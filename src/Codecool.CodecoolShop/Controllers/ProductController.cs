@@ -16,76 +16,23 @@ namespace Codecool.CodecoolShop.Controllers
         private readonly ILogger<ProductController> _logger;
         public ProductService ProductService { get; set; }
 
-        public ProductDaoMemory ProductDao { get; set; }
-
-        public SupplierDaoMemory SupplierDao { get; set; }
-
-        public ProductCategoryDaoMemory ProductCategoryDao { get; set; }
-
-        public Cart Cart { get; set; }
-
-
         public ProductController(ILogger<ProductController> logger)
         {
             _logger = logger;
             ProductService = new ProductService(
                 ProductDaoMemory.GetInstance(),
                 ProductCategoryDaoMemory.GetInstance(),
-                SupplierDaoMemory.GetInstance()
-               );
-
-            ProductDao = ProductDaoMemory.GetInstance();
-
-            SupplierDao = SupplierDaoMemory.GetInstance();
-
-            ProductCategoryDao = ProductCategoryDaoMemory.GetInstance();
-
-            Cart = Cart.GetInstance();
-
+                CartDaoMemory.GetInstance()
+            );
         }
 
-        public IActionResult Buy(string id)
+
+
+        public IActionResult Index(int Category=1)
         {
-            ViewBag["CartId"] = Cart.Id;
-            Cart.Products.Add(ProductDao.Get(Int32.Parse(id)));
-            return RedirectToAction("index");
+            var products = ProductService.GetProductsForCategory(Category);
+            return View(products.ToList());
         }
-
-
-        public IActionResult Index()
-        {
-            var products = ProductDao.GetAll();
-            var categories = ProductCategoryDao.GetAll();
-            var suppliers = SupplierDao.GetAll();
-            return View((products.ToList(), categories.ToList(), suppliers.ToList()));
-        }
-
-        [Route("/getProducts")]
-        public IActionResult GetProducts([FromQuery] string filterBy, [FromQuery] int filter)
-        {
-            IEnumerable<Product> products;
-            _logger.LogDebug(filter.ToString());
-            if (filter != 0)
-            {
-                if (filterBy == "category")
-                {
-                    _logger.LogDebug("category");
-                    products = ProductService.GetProductsForCategory(filter);
-                }
-                else
-                {
-                    _logger.LogDebug("supplier");
-                    products = ProductService.GetProductsForSupplier(filter);
-                }
-            }
-            else
-            {
-                products = ProductDao.GetAll();
-            }
-            string jsonString = JsonSerializer.Serialize(products);
-            return Ok(jsonString);
-        }
-
 
         public IActionResult Privacy()
         {
@@ -97,5 +44,6 @@ namespace Codecool.CodecoolShop.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Codecool.CodecoolShop.Daos;
+using Codecool.CodecoolShop.Daos.Implementations;
 using Codecool.CodecoolShop.Models;
 
 namespace Codecool.CodecoolShop.Services
@@ -8,40 +9,28 @@ namespace Codecool.CodecoolShop.Services
     {
         private readonly IProductDao productDao;
         private readonly IProductCategoryDao productCategoryDao;
-        private readonly ISupplierDao supplierDao;
+        public readonly ICartDao cartDao;
 
-        public ProductService(IProductDao productDao, IProductCategoryDao productCategoryDao, ISupplierDao supplierDao)
+        public ProductService(IProductDao productDao, IProductCategoryDao productCategoryDao, ICartDao cartDao)
         {
             this.productDao = productDao;
             this.productCategoryDao = productCategoryDao;
-            this.supplierDao = supplierDao;
+            this.cartDao = cartDao;
         }
 
         public ProductCategory GetProductCategory(int categoryId)
         {
             return this.productCategoryDao.Get(categoryId);
         }
-
-        public IEnumerable<Product> GetAllProduct()
+        public IEnumerable<Product> GetCart()
         {
-            return this.productDao.GetAll();
+            return this.cartDao.GetAll();
         }
 
         public IEnumerable<Product> GetProductsForCategory(int categoryId)
         {
             ProductCategory category = this.productCategoryDao.Get(categoryId);
             return this.productDao.GetBy(category);
-        }
-
-        public IEnumerable<Product> GetProductsForSupplier(int categoryId)
-        {
-            Supplier supplier = this.supplierDao.Get(categoryId);
-            return this.productDao.GetBy(supplier);
-        }
-
-        public IDao<Product> GetCart(int cartId)
-        {
-            return (IDao<Product>)this.productDao.Get(cartId);
         }
     }
 }
