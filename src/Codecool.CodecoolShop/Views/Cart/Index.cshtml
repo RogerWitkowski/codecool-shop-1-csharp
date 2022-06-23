@@ -1,8 +1,11 @@
 ﻿@{
-    Layout = null;
+    foreach (Cart cart in Model)
+    {
+        
+    }
 }
 
-@model List<Codecool.CodecoolShop.Models.Product>
+@model List<Codecool.CodecoolShop.Models.Cart>
 
 <!DOCTYPE html>
 
@@ -23,18 +26,22 @@
             <th>Quantity</th>
             <th>Remove</th>
         </tr>
-        @foreach (var item in ViewBag.cart)
+        @foreach (var items in Model)
         {
+    @*        foreach (var item in items.Products)
+            {
+                
+            }
             <tr>
                 
-                <td>@item.Product.Id</td>
-                <td>@item.Product.Name</td>
-                <td>@item.Product.DefaultPrice</td>
+                <td>@item.Id</td>
+                <td>@item.Name</td>
+                <td>@item.DefaultPrice</td>
                 <td>@item.Quantity</td>
                 <td>@(item.Product.DefaultPrice * item.Quantity)</td>
                 <td><a asp-controller="cart" asp-action="remove" asp-route-id="@item.Product.Id">Remove</a></td>
             </tr>
-               
+              *@ 
         }
         <tr>
             <td align="right" colspan="6">Sum</td>

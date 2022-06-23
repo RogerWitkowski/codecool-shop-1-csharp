@@ -38,5 +38,10 @@ namespace Codecool.CodecoolShop.Services
             Supplier supplier = this.supplierDao.Get(categoryId);
             return this.productDao.GetBy(supplier);
         }
+
+        public IDao<Product> GetCart(int cartId)
+        {
+            return (IDao<Product>)this.productDao.Get(cartId);
+        }
     }
 }

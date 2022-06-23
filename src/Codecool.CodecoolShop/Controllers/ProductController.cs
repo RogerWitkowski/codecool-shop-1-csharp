@@ -3,6 +3,7 @@ using Codecool.CodecoolShop.Models;
 using Codecool.CodecoolShop.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,7 +11,6 @@ using System.Text.Json;
 
 namespace Codecool.CodecoolShop.Controllers
 {
-    [Route("product")]
     public class ProductController : Controller
     {
         private readonly ILogger<ProductController> _logger;
@@ -22,6 +22,8 @@ namespace Codecool.CodecoolShop.Controllers
 
         public ProductCategoryDaoMemory ProductCategoryDao { get; set; }
 
+        public Cart Cart { get; set; }
+
 
         public ProductController(ILogger<ProductController> logger)
         {
@@ -29,7 +31,8 @@ namespace Codecool.CodecoolShop.Controllers
             ProductService = new ProductService(
                 ProductDaoMemory.GetInstance(),
                 ProductCategoryDaoMemory.GetInstance(),
-                SupplierDaoMemory.GetInstance());
+                SupplierDaoMemory.GetInstance()
+               );
 
             ProductDao = ProductDaoMemory.GetInstance();
 
@@ -37,11 +40,18 @@ namespace Codecool.CodecoolShop.Controllers
 
             ProductCategoryDao = ProductCategoryDaoMemory.GetInstance();
 
+            Cart = Cart.GetInstance();
+
         }
 
-        [Route("")]
-        [Route("index")]
-        [Route("~/")]
+        public IActionResult Buy(string id)
+        {
+            ViewBag["CartId"] = Cart.Id;
+            Cart.Products.Add(ProductDao.Get(Int32.Parse(id)));
+            return RedirectToAction("index");
+        }
+
+
         public IActionResult Index()
         {
             var products = ProductDao.GetAll();
@@ -68,7 +78,8 @@ namespace Codecool.CodecoolShop.Controllers
                     products = ProductService.GetProductsForSupplier(filter);
                 }
             }
-            else {
+            else
+            {
                 products = ProductDao.GetAll();
             }
             string jsonString = JsonSerializer.Serialize(products);
