@@ -1,0 +1,14 @@
+﻿<div class="text-center">
+    <form asp-action="Processing" asp-controller="Checkout" method="post">
+        <label class="text-info">
+            Your payment was succesfully processed
+        </label>
+        <br />
+        <br />
+        <p class="text-center">
+            The details of the transaction are <br />
+            Customer: @ViewBag.Customer <br />
+            Amount: @ViewBag.AmountPaid
+        </p>
+    </form>
+</div>
