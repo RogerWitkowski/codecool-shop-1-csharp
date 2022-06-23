@@ -12,6 +12,7 @@ using Codecool.CodecoolShop.Services;
 
 namespace Codecool.CodecoolShop.Controllers
 {
+    [Route("product")]
     public class ProductController : Controller
     {
         private readonly ILogger<ProductController> _logger;
@@ -25,6 +26,9 @@ namespace Codecool.CodecoolShop.Controllers
                 ProductCategoryDaoMemory.GetInstance());
         }
 
+        [Route("")]
+        [Route("index")]
+        [Route("~/")]
         public IActionResult Index()
         {
             var products = ProductService.GetProductsForCategory(1);
