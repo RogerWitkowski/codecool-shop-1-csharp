@@ -6,6 +6,7 @@ namespace Codecool.CodecoolShop.Models
 {
     public abstract class BaseModel
     {
+        [Key]
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
