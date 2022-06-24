@@ -15,8 +15,8 @@ public class CheckoutController : Controller
     {
         var cart = SessionHelper.GetObjectFromJson<List<Product>>(HttpContext.Session, "cart");
         ViewBag.cart = cart;
-        ViewBag.DollarAmount = 12;
-        ViewBag.total = Math.Round(ViewBag.DollarAmount, 2)*100;
+        ViewBag.DollarAmount = 1200;
+        ViewBag.total = ViewBag.DollarAmount;
         ViewBag.total = Convert.ToInt64(ViewBag.total);
         long total = ViewBag.total;
         TotalAmount = total.ToString();
@@ -37,9 +37,9 @@ public class CheckoutController : Controller
         var optionsCharge = new ChargeCreateOptions
         {
             /*Amount = HttpContext.Session.GetLong("Amount")*/
-            Amount = Convert.ToInt64(TempData["TotalAmount"]),
-            Currency = "USD",
-            Description = "Buying Flowers",
+            Amount = 1200,
+            Currency = "PLN",
+            Description = "Codecool",
             Source = stripeToken,
             ReceiptEmail = stripeEmail,
                             
@@ -49,7 +49,7 @@ public class CheckoutController : Controller
         if (charge.Status == "succeeded")
         {
             string BalanceTransactionId = charge.BalanceTransactionId;
-            ViewBag.AmountPaid =Convert.ToDecimal(charge.Amount) % 100 / 100 + (charge.Amount)/100 ;
+            ViewBag.AmountPaid =120;
             ViewBag.BalanceTxId = BalanceTransactionId;
             ViewBag.Customer = customer.Name;
             //return View();

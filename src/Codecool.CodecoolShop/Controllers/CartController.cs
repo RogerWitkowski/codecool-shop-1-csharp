@@ -30,7 +30,7 @@ public class CartController : Controller
         );
     }
 
-    //[Route("add/{id}")]
+    
     public ActionResult Add(string Command)
     {
         string[] commands = Command.Split(',');
@@ -44,7 +44,7 @@ public class CartController : Controller
     }
 
 
-    //[Route("remove/{id}")]
+    
     public ActionResult Remove(int Id)
     {
         ProductService.cartDao.Remove(Id);
@@ -53,7 +53,7 @@ public class CartController : Controller
     }
 
 
-    //[Route("Cart")]
+    
     public ActionResult ViewCart()
     {
         List<Product> InCart = (List<Product>)ProductService.GetCart();

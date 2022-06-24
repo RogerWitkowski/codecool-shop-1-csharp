@@ -5,7 +5,46 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model List<Codecool.CodecoolShop.Models.Product>
 
+@* @model (List<Codecool.CodecoolShop.Models.Product>, List<Codecool.CodecoolShop.Models.ProductCategory>, List<Codecool.CodecoolShop.Models.Supplier>) *@
 
+@* <main role="main" class="pb-3"> *@
+@* <div class="container"> *@
+@*     <div class="row"> *@
+@*         <div class="col-2"> *@
+@*             <nav class="navbar navbar-expand-sm flex-sm-column navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3"> *@
+@*                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse"> *@
+@*                     <form> *@
+@*                         <label for="categories">Choose a category:</label> *@
+@*                         <select id="categories"> *@
+@*                             <option value="0">All</option>; *@
+@*                             @foreach (var item in Model.Item2) *@
+@*                             { *@
+@*                                 <option value="@item.Id">@item.Name</option>; *@
+@*                             } *@
+@*                         </select> *@
+@*                         <button type="button" onclick="RefreshProducts('category')">Refresh</button> *@
+@*                     </form> *@
+@*                     <form> *@
+@*                         <label for="supliers">Choose a supplier:</label> *@
+@*                         <select id="supliers"> *@
+@*                             <option value="0">All</option>; *@
+@*                             @foreach (var item in Model.Item3) *@
+@*                             { *@
+@*                                 <option value="@item.Id">@item.Name</option>; *@
+@*                             } *@
+@*                         </select> *@
+@*                         <button type="button" onclick="RefreshProducts('supplier')">Refresh</button> *@
+@*                     </form> *@
+@*                 </div> *@
+@*                 <br> *@
+@*                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse"> *@
+@*                  *@
+@*                 </div> *@
+@*             </nav> *@
+@*         </div> *@
+@*     </div> *@
+@* </div> *@
+@* </main> *@
 
 <li class="nav-item">
     <div class="dropdown-menu-right">Order By</div>
