@@ -21,7 +21,7 @@ namespace Codecool.CodecoolShop.Daos.Implementations
             {
                 instance = new ProductDaoMemory();
             }
-
+            //todo 2583
             return instance;
         }
 
