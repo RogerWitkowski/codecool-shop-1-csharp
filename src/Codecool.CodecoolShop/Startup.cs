@@ -34,6 +34,7 @@ namespace Codecool.CodecoolShop
                 Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews();
             //services.AddMvc();
+            services.AddRazorPages();
             services.AddSession();
             services.Configure<StripeSettings>(Configuration.GetSection("Stripe"));
         }

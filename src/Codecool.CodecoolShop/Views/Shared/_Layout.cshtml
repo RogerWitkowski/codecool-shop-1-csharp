@@ -7,6 +7,7 @@
     <title>@ViewData["Title"] - Codecool.CodecoolShop</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/bootswatchTheme.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
 </head>
 <body>
 <header>
@@ -21,11 +22,8 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         
-                            <a class="nav-link active" asp-area="" asp-controller="Product" asp-action="Index">Home</a>
+                            <a class="nav-link active" asp-area="" asp-controller="Product" asp-action="Index">Products List</a>
                         
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" asp-area="" asp-controller="Product" asp-action="Privacy">Privacy</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link active" asp-area="" asp-controller="Cart" asp-action="ViewCart">Cart</a>
@@ -58,9 +56,9 @@
         </main>
     </div>
 
-<footer class="footer text-muted bg-dark fixed-bottom">
+<footer class="footer text-muted bg-primary fixed-bottom">
     <div class="container">
-        &copy; 2022 - Codecool Shop - <a asp-area="" asp-controller="Home" asp-action="Index">Privacy</a>
+        &copy; 2022 - Codecool Shop - <a asp-area="" asp-controller="Product" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
