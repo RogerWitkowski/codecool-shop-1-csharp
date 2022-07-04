@@ -58,11 +58,6 @@ namespace Codecool.CodecoolShop.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create(Product objProduct)
         {
-            if (objProduct.Name == objProduct.Description)
-            {
-                ModelState.AddModelError("name", "The Name cannot be the same as Descryption");
-            }
-
             if (ModelState.IsValid)
             {
                 _dbContext.Products.Add(objProduct);
@@ -74,21 +69,36 @@ namespace Codecool.CodecoolShop.Controllers
     
 
 
-    //public IActionResult Index(int Category=1)
+    
+        //public IActionResult Privacy()
         //{
-        //    var products = ProductService.GetProductsForCategory(Category);
-        //    return View(products.ToList());
+        //    return View();
         //}
 
-        public IActionResult Privacy()
+        //[ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        //public IActionResult Error()
+        //{
+        //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        //}
+
+        //TODO:Edit Product
+
+        public IActionResult Edit(int? id)
         {
-            return View();
+            if (id == null || id == 0)
+            {
+                return NotFound();
+            }
+            //var productFromDb = _dbContext.Products.Find(id);
+            var productFromDb = _dbContext.Products.FirstOrDefault(p => p.Id == id);
+            //var productFromDb = _dbContext.Products.Find(p => p.Id == id);
+            return View(productFromDb);
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        [HttpPost]
+        public IActionResult Edit(Product editProduct)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View();
         }
 
     }
