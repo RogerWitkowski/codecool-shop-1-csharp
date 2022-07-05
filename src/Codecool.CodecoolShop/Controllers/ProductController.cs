@@ -40,10 +40,8 @@ namespace Codecool.CodecoolShop.Controllers
 
         public IActionResult Index()
         {
-            var products = ProductDao.GetAll();
-            var categories = ProductCategoryDao.GetAll();
-            var suppliers = SupplierDao.GetAll();
-            return View((products.ToList(), categories.ToList(), suppliers.ToList()));
+            var products = ProductService.GetAllProduct();
+            return View(products.ToList());
         }
 
         [Route("/getProducts")]

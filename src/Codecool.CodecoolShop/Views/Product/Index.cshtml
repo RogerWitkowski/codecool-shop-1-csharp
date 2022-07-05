@@ -1,10 +1,24 @@
-@{
-
+﻿@{
     ViewData["Title"] = "Home Page";
+    var categories = new List<ProductCategory>();
+    var supplayers = new List<Supplier>();
+    var products =  @Json.Serialize(Model);
 
+    foreach (var item in Model)
+    {
+        if (!categories.Contains(item.ProductCategory))
+        {
+            categories.Add(item.ProductCategory);
+        }
+        if (!supplayers.Contains(item.Supplier))
+        {
+            supplayers.Add(item.Supplier);
+        }
+    }
 }
 
-@model (List<Codecool.CodecoolShop.Models.Product>, List<Codecool.CodecoolShop.Models.ProductCategory>, List<Codecool.CodecoolShop.Models.Supplier>)
+@model List<Codecool.CodecoolShop.Models.Product>
+
 
 <main role="main" class="pb-3">
 <div class="container">
@@ -12,38 +26,22 @@
     <div class="col-2">
       <nav class="navbar navbar-expand-sm flex-sm-column navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
              <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                <form>
-                    <label for="categories">Choose a category:</label>
-                        <select id="categories">
-                            <option value="0">All</option>;
-                            @foreach (var item in Model.Item2)
-                            {
-                                <option value="@item.Id">@item.Name</option>;
-                            }
-                        </select>
-                    <button type="button" onclick="RefreshProducts('category')">Refresh</button>
-                </form>
-                <form>
-                    <label for="supliers">Choose a supplier:</label>
-                        <select id="supliers">
-                            <option value="0">All</option>;
-                            @foreach (var item in Model.Item3)
-                            {
-                                <option value="@item.Id">@item.Name</option>;
-                            }
-                        </select>
-                    <button type="button" onclick="RefreshProducts('supplier')">Refresh</button>
-                </form>
-            </div>
+                 <div>
+                <h5>Category</h5> <button id="BNTCatrgories" onclick='CategoryContent(@Json.Serialize(categories))'>v</button>
+                </div>
                 <br>
-            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                
+                 <div id="categories"></div>
+                    <br>
+                    <h5>Supplier</h5> <button id="BNTSupplayer" onclick='SupplayerContent(@Json.Serialize(supplayers))'>v</button>
+                    <div id="supplayer">
+                    </div>
+
             </div>
        </nav>
     </div>
     <div class="col">
        <div class="container" id="productContainer">
-        @foreach (var element in Model.Item1)
+        @foreach (var element in Model)
         {
             <div class="col-lg-3 col-lg-3" style="display: inline-block; max-width: 350px; height: 350px">
                 <div class="card">
@@ -51,7 +49,7 @@
                     <div class="card-body">
                         <h5 class="card-title text-center">
                             Product
-                            @{ var num = Model.Item1.IndexOf(element) + 1;}
+                            @{ var num = Model.IndexOf(element) + 1;}
                             @num
                         </h5>
                         <h5 class="card-title">@element.Name</h5>
