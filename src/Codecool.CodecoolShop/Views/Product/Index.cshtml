@@ -46,11 +46,6 @@
                 <div class="card">
                     <img src="img/@(element.Name).jpg" style="height: 50%; width: 50%; align-self: center; padding-top: 10px">
                     <div class="card-body">
-                        <h5 class="card-title text-center">
-                            Product
-                            @{ var num = Model.IndexOf(element) + 1;}
-                            @num
-                        </h5>
                         <h5 class="card-title">@element.Name</h5>
                         <p class="card-text">@element.Description.</p>
                         <p class="card-text">Category: @element.ProductCategory.Department</p>
