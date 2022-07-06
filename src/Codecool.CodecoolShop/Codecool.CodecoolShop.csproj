@@ -31,6 +31,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Codecool.DataAccess\Codecool.DataAccess.csproj" />
+    <ProjectReference Include="..\Codecool.Utility\Codecool.Utility.csproj" />
   </ItemGroup>
 
 </Project>
