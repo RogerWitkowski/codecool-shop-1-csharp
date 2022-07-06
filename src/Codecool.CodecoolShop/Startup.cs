@@ -2,19 +2,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Codecool.CodecoolShop.Daos;
-using Codecool.CodecoolShop.Daos.Implementations;
 using Codecool.CodecoolShop.Data;
-using Codecool.CodecoolShop.Models;
+using Codecool.DataAccess;
+using Codecool.DataAccess.Repository;
+using Codecool.DataAccess.Repository.IRepository;
+using Codecool.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Stripe;
-using Product = Codecool.CodecoolShop.Models.Product;
+
 
 namespace Codecool.CodecoolShop
 {
@@ -34,7 +36,10 @@ namespace Codecool.CodecoolShop
                 Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews();
             //services.AddMvc();
-            services.AddRazorPages();
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddSession();
             services.Configure<StripeSettings>(Configuration.GetSection("Stripe"));
         }
@@ -59,39 +64,19 @@ namespace Codecool.CodecoolShop
             app.UseSession();
 
             app.UseRouting();
+            app.UseAuthentication();
 
             app.UseAuthorization();
-
+            //app.MapRazorPages(); 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Product}/{action=Index}/{id?}");
+                    pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}");
             });
 
-            SetupInMemoryDatabases();
         }
 
-        private void SetupInMemoryDatabases()
-        {
-            IProductDao productDataStore = ProductDaoMemory.GetInstance();
-            IProductCategoryDao productCategoryDataStore = ProductCategoryDaoMemory.GetInstance();
-            ISupplierDao supplierDataStore = SupplierDaoMemory.GetInstance();
-
-            Supplier amazon = new Supplier{Name = "Amazon", Description = "Digital content and services"};
-            supplierDataStore.Add(amazon);
-            Supplier lenovo = new Supplier{Name = "Lenovo", Description = "Computers"};
-            supplierDataStore.Add(lenovo);
-            ProductCategory tablet = new ProductCategory {Name = "Tablet", Department = "Hardware", Description = "A tablet computer, commonly shortened to tablet, is a thin, flat mobile computer with a touchscreen display." };
-            productCategoryDataStore.Add(tablet);
-            ProductCategory computer = new ProductCategory {Name = "Computer", Department = "Hardware1", Description = "1A tablet computer, commonly shortened to tablet, is a thin, flat mobile computer with a touchscreen display." };
-            productCategoryDataStore.Add(computer);
-            productDataStore.Add(new Product { Name = "Amazon Fire", DefaultPrice = 49.9m, Currency = "USD", Description = "Fantastic price. Large content ecosystem. Good parental controls. Helpful technical support.", ProductCategory = computer, Supplier = amazon });
-            productDataStore.Add(new Product { Name = "Lenovo IdeaPad Miix 700", DefaultPrice = 479.0m, Currency = "USD", Description = "Keyboard cover is included. Fanless Core m5 processor. Full-size USB ports. Adjustable kickstand.", ProductCategory = tablet, Supplier = lenovo });
-            productDataStore.Add(new Product { Name = "Amazon Fire HD 8", DefaultPrice = 89.0m, Currency = "USD", Description = "Amazon's latest Fire HD 8 tablet is a great value for media consumption.", ProductCategory = tablet, Supplier = amazon });
-            productDataStore.Add(new Product { Name = "Amazon Fire", DefaultPrice = 49.9m, Currency = "USD", Description = "Fantastic price. Large content ecosystem. Good parental controls. Helpful technical support.", ProductCategory = tablet, Supplier = amazon });
-        }
-
-   
+        
     }
 }
