@@ -1,5 +1,4 @@
-﻿using Codecool.CodecoolShop;
-using Codecool.Models;
+﻿using Codecool.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 

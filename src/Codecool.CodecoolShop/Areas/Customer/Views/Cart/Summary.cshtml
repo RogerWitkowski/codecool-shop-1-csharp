@@ -1,4 +1,7 @@
 ﻿@model Codecool.Models.ViewModels.ShoppingCartVM
+@using Microsoft.Extensions.Options
+@using Codecool.Utility
+@inject IOptions<StripeSettings> Stripe
 
 <form method="post">
 	<br />

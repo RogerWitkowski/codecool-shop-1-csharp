@@ -1,9 +1,13 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
 using Codecool.DataAccess.Repository.IRepository;
+using Codecool.Models;
 using Codecool.Models.ViewModels;
 using Codecool.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe.Checkout;
 
 namespace Codecool.CodecoolShop.Areas.Customer.Controllers
 {
@@ -12,6 +16,7 @@ namespace Codecool.CodecoolShop.Areas.Customer.Controllers
     public class CartController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
+        [BindProperty]
         public ShoppingCartVM ShoppingCartVM { get; set; }
         public int TotalOrder { get; set; }
 
@@ -100,7 +105,90 @@ namespace Codecool.CodecoolShop.Areas.Customer.Controllers
 
             _unitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);
             _unitOfWork.Save();
-            return View(ShoppingCartVM);
+
+            foreach (var cart in ShoppingCartVM.ListCarts)
+            {
+                OrderDetail orderDetail = new()
+                {
+                    ProductId = cart.ProductId,
+                    OrderId = ShoppingCartVM.OrderHeader.Id,
+                    Price = cart.Price,
+                    Count = cart.Count
+                };
+                _unitOfWork.OrderDetail.Add(orderDetail);
+                _unitOfWork.Save();
+            }
+
+            //stripe settings
+            var domain = "https://localhost:44368/";
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string>
+                {
+                    "card",
+                },
+                LineItems = new List<SessionLineItemOptions>(),
+                
+                Mode = "payment",
+                SuccessUrl = domain + $"Customer/Cart/OrderConfirmation?id={ShoppingCartVM.OrderHeader.Id}",
+                CancelUrl = domain + $"Customer/Cart/Index",
+            };
+
+            foreach (var item in ShoppingCartVM.ListCarts)
+            {
+                var sessionLineItem =  new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100),
+                        Currency = "pln",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Product.Name,
+                        },
+
+                    },
+                    Quantity = item.Count,
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            _unitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.Id,session.Id,session.PaymentIntentId);
+            _unitOfWork.Save();
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+
+
+
+
+            //_unitOfWork.ShoppingCart.RemoveRange(ShoppingCartVM.ListCarts);
+            //_unitOfWork.Save();
+            //return RedirectToAction("Index","Home");
+
+        }
+
+
+
+        public IActionResult OrderConfirmation(int id)
+        {
+            OrderHeader orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == id);
+            var service = new SessionService();
+            Session session = service.Get(orderHeader.SessionId);
+            //check the stripe status
+            if (session.PaymentStatus.ToLower() == "paid")
+            {
+                _unitOfWork.OrderHeader.UpdateStatus(id, StaticDetails.StatusApproved,
+                    StaticDetails.PaymentStatusApproved);
+                _unitOfWork.Save();
+            }
+
+            List<ShoppingCart> shoppingCarts = _unitOfWork.ShoppingCart
+                .GetAll(u => u.ApplicationUserId == orderHeader.ApplicationUserId).ToList();
+            _unitOfWork.ShoppingCart.RemoveRange(shoppingCarts);
+            _unitOfWork.Save();
+            return View(id);
 
         }
 
