@@ -1,12 +1,10 @@
-using Codecool.CodecoolShop.Data;
-using Codecool.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
 using Codecool.DataAccess.Repository.IRepository;
-using Microsoft.Build.Framework;
+using Codecool.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using ILogger = Microsoft.Build.Framework.ILogger;
+using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace Codecool.CodecoolShop.Areas.Customer.Controllers;
 [Area("Customer")]
@@ -23,21 +21,48 @@ public class HomeController : Controller
 
     public IActionResult Index()
     {
-        IEnumerable<Product> productsList = _unitOfWork.Product.GetAll(includeProperties:"Category");
+        IEnumerable<Product> productsList = _unitOfWork.Product.GetAll(includeProperties: "Category");
         return View(productsList);
     }
 
-    public IActionResult Details(int id)
+    public IActionResult Details(int productId)
     {
         ShoppingCart cartObj = new()
         {
             Count = 1,
-            Product = _unitOfWork.Product.GetFirstOrDefault(i => i.Id == id, includeProperties: "Category")
+            ProductId = productId,
+            Product = _unitOfWork.Product.GetFirstOrDefault(i => i.Id == productId, includeProperties: "Category")
 
         };
         return View(cartObj);
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize]
+    public IActionResult Details(ShoppingCart shoppingCart)
+    {
+        var claimsIdentity = (ClaimsIdentity)User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+        shoppingCart.ApplicationUserId = claim.Value;
+
+
+        ShoppingCart cartFromDb = _unitOfWork.ShoppingCart.GetFirstOrDefault(
+            u => u.ApplicationUserId==claim.Value && u.ProductId == shoppingCart.ProductId);
+
+        if (cartFromDb == null)
+        {
+            _unitOfWork.ShoppingCart.Add(shoppingCart);
+        }
+        else
+        {
+            _unitOfWork.ShoppingCart.IncrementCount(cartFromDb, shoppingCart.Count);
+        }
+
+        _unitOfWork.Save();
+        return RedirectToAction(nameof(Index));
+    }
 }
 
-    
+
 
