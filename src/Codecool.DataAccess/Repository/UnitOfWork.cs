@@ -16,10 +16,12 @@ namespace Codecool.DataAccess.Repository
             _db = db;
             Product = new ProductRepository(_db);
             Category = new CategoryRepository(_db);
+            Company = new CompanyRepository(_db);
         }
 
         public IProductRepository Product { get; private set; }
         public ICategoryRepository Category { get; private set; }
+        public ICompanyRepository Company { get; private set; }
 
         public void Save()
         {
