@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -8,6 +9,8 @@ using Codecool.Models.ViewModels;
 using Codecool.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
+using Stripe.Checkout;
 
 namespace Codecool.CodecoolShop.Areas.Admin.Controllers
 {
@@ -42,7 +45,83 @@ namespace Codecool.CodecoolShop.Areas.Admin.Controllers
             return View(OrderVM);
         }
 
+        [ActionName("Details")]
         [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult PayNowDetails()
+        {
+            OrderVM.OrderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id,
+                includeProperties: "ApplicationUser");
+            OrderVM.OrderDetail = _unitOfWork.OrderDetail.GetAll(u => u.OrderId == OrderVM.OrderHeader.Id,
+                includeProperties: "Product");
+            //stripe settings
+            var domain = "https://localhost:44368/";
+            var options = new SessionCreateOptions
+            {
+                PaymentMethodTypes = new List<string>
+                {
+                    "card",
+                },
+                LineItems = new List<SessionLineItemOptions>(),
+
+                Mode = "payment",
+                SuccessUrl = domain + $"Admin/Order/PaymentConfirmation?OrderHeaderId={OrderVM.OrderHeader.Id}",
+                CancelUrl = domain + $"Admin/Order/Details?OrderId={OrderVM.OrderHeader.Id}",
+            };
+
+            foreach (var item in OrderVM.OrderDetail)
+            {
+                var sessionLineItem = new SessionLineItemOptions
+                {
+                    PriceData = new SessionLineItemPriceDataOptions
+                    {
+                        UnitAmount = (long)(item.Price * 100),
+                        Currency = "pln",
+                        ProductData = new SessionLineItemPriceDataProductDataOptions
+                        {
+                            Name = item.Product.Name,
+                        },
+
+                    },
+                    Quantity = item.Count,
+                };
+                options.LineItems.Add(sessionLineItem);
+            }
+
+            var service = new SessionService();
+            Session session = service.Create(options);
+            _unitOfWork.OrderHeader.UpdateStripePaymentId(OrderVM.OrderHeader.Id, session.Id,
+                session.PaymentIntentId);
+            _unitOfWork.Save();
+            Response.Headers.Add("Location", session.Url);
+            return new StatusCodeResult(303);
+
+        }
+
+
+        public IActionResult PaymentConfirmation(int OrderHeaderId)
+        {
+            OrderHeader orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderHeaderId);
+            if (orderHeader.PaymentStatus == StaticDetails.PaymentStatusDelayedPayment)
+            {
+                var service = new SessionService();
+                Session session = service.Get(orderHeader.SessionId);
+                //check the stripe status
+                if (session.PaymentStatus.ToLower() == "paid")
+                {
+                    _unitOfWork.OrderHeader.UpdateStatus(OrderHeaderId, orderHeader.OrderStatus,
+                        StaticDetails.PaymentStatusApproved);
+                    _unitOfWork.Save();
+                }
+            }
+            return View(OrderHeaderId);
+
+        }
+
+
+
+        [HttpPost]
+        [Authorize(Roles = StaticDetails.Role_User_Admin + "," + StaticDetails.Role_Employee)]
         [ValidateAntiForgeryToken]
         public IActionResult UpdateOrderDetail(int orderId)
         {
@@ -67,6 +146,68 @@ namespace Codecool.CodecoolShop.Areas.Admin.Controllers
             _unitOfWork.Save();
             TempData["Success"] = "Order Details Updated Successfully.";
             return RedirectToAction("Details", "Order", new { orderId = orderHeaderFromDb.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticDetails.Role_User_Admin + "," + StaticDetails.Role_Employee)]
+        [ValidateAntiForgeryToken]
+        public IActionResult StartProcessing()
+        {
+            _unitOfWork.OrderHeader.UpdateStatus(OrderVM.OrderHeader.Id, StaticDetails.StatusProcessing);
+            _unitOfWork.Save();
+            TempData["Success"] = "Order Details Updated Successfully.";
+            return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
+        }
+
+        [HttpPost]
+        [Authorize(Roles = StaticDetails.Role_User_Admin + "," + StaticDetails.Role_Employee)]
+        [ValidateAntiForgeryToken]
+        public IActionResult ShipOrder()
+        {
+            var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
+            orderHeader.TrackingNumber = OrderVM.OrderHeader.TrackingNumber;
+            orderHeader.Carrier = OrderVM.OrderHeader.Carrier;
+            orderHeader.OrderStatus = StaticDetails.StatusShipped;
+            orderHeader.ShippingDate = DateTime.Now;
+
+            if (orderHeader.PaymentStatus == StaticDetails.PaymentStatusDelayedPayment)
+            {
+                orderHeader.PaymentDueDate= DateTime.Now.AddDays(30);
+            }
+
+            _unitOfWork.OrderHeader.Update(orderHeader);
+            _unitOfWork.Save();
+            TempData["Success"] = "Order Shipped Successfully.";
+            return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
+        }
+
+
+        [HttpPost]
+        [Authorize(Roles = StaticDetails.Role_User_Admin + "," + StaticDetails.Role_Employee)]
+        [ValidateAntiForgeryToken]
+        public IActionResult CancelOrder()
+        {
+            var orderHeader = _unitOfWork.OrderHeader.GetFirstOrDefault(u => u.Id == OrderVM.OrderHeader.Id, tracked: false);
+            if (orderHeader.PaymentStatus == StaticDetails.PaymentStatusApproved)
+            {
+                var oprionRef = new RefundCreateOptions
+                {
+                    Reason = RefundReasons.RequestedByCustomer,
+                    PaymentIntent = orderHeader.PaymentIntentId,
+                };
+
+                var serviceRef = new RefundService();
+                Refund refund = serviceRef.Create(oprionRef);
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id,StaticDetails.StatusCancelled,StaticDetails.StatusRefunded);
+            }
+            else
+            {
+                _unitOfWork.OrderHeader.UpdateStatus(orderHeader.Id,StaticDetails.StatusCancelled,StaticDetails.StatusCancelled);
+            }
+
+            _unitOfWork.Save();
+            TempData["Success"] = "Order Cancelled Successfully.";
+            return RedirectToAction("Details", "Order", new { orderId = OrderVM.OrderHeader.Id });
         }
 
 
