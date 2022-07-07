@@ -109,41 +109,6 @@ public class ProductController : Controller
         return View(objProduct);
     }
 
-    //public IActionResult Delete(int? id)
-    //{
-    //    if (id == null || id == 0)
-    //    {
-    //        return NotFound();
-    //    }
-    //    //var productToDeleteFromDb = _unitOfWork.Products.Find(id);
-    //    var productToDeleteFromDbFirst = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id);
-    //    //var productToDeleteFromDb = _unitOfWork.Products.Find(p => p.Id == id);
-
-    //    if (productToDeleteFromDbFirst == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    return View(productToDeleteFromDbFirst);
-    //}
-
-    //[HttpPost, ActionName("Delete")]
-    //[ValidateAntiForgeryToken]
-    //public IActionResult DeletePost(int? id)
-    //{
-    //    var objToDelete = _unitOfWork.Product.GetFirstOrDefault(p => p.Id == id);
-    //    if (objToDelete == null)
-    //    {
-    //        return NotFound();
-    //    }
-
-    //    _unitOfWork.Product.Remove(objToDelete);
-    //    _unitOfWork.Save();
-    //    TempData["success"] = "Product deleted successfully!";
-    //    return RedirectToAction("Index");
-
-    //}
-
 
     #region API CALLS
 
