@@ -16,12 +16,12 @@ namespace Codecool.CodecoolShop.Areas.Admin.Controllers;
     public class ProductController : Controller
     {
 
-
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
         public ProductController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
+            
             _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
         }

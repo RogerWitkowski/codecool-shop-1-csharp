@@ -18,11 +18,13 @@ public class HomeController : Controller
     public HomeController(ILogger<HomeController> logger, IUnitOfWork unitOfWork)
     {
         _logger = logger;
+        _logger.LogDebug(1, "NLog injected into HomeController");
         _unitOfWork = unitOfWork;
     }
 
     public IActionResult Index()
     {
+        _logger.LogInformation("Hello, this is the index!");
         IEnumerable<Product> productsList = _unitOfWork.Product.GetAll(includeProperties:"Category");
         return View(productsList);
     }
